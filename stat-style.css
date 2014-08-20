@@ -1,0 +1,190 @@
+#summoner-name {
+    font-size: 50px;
+    font-weight 600;
+}
+
+#title-div {
+    width: 100%;
+}
+
+#general-stats-div {
+    overflow: auto;
+}
+
+#left-container {
+    width: 50%;
+    padding-right: 20px;
+    float: left;
+}
+
+#right-container {
+    width: 50%;
+    padding-left: 20px;
+    float: right;
+}
+
+#general-stats {
+    width: 100%;
+    top: 20px;
+}
+
+#general-stats .stat-style {
+    font-size: 20px;
+    line-height: 22px;
+    text-align: left;
+    font-weight: 200;
+}
+
+#general-stats .stat-data-style {
+    font-size: 20px;
+    line-height: 22px;
+    text-align: left;
+    font-weight: 500;
+}
+
+#general-stats #general-stats-left {
+    float: left;
+    width: 50%;
+}
+
+
+#general-stats #general-stats-right {
+    float: right;
+    width: 50%;
+    padding-left: 20px;
+}
+
+.section-title {
+    font-size: 30px;
+}
+/*
+<div class="info-card">
+    <div class="main-area">
+        <img src="http://ddragon.leagueoflegends.com/cdn/4.10.7/img/champion/Chogath.png" alt="Chogath">
+        <div class="left-section">
+            <span class="name">Heimerdinger</span><br>
+            <span class="games-played">100 games played</span>
+        </div>
+        <div class="win-rate"><span>56%</span></div>
+        <div class="win-rate-text"><span>Win rate</span></div>
+    </div>
+    <div class="expand-area">
+        <span class="glyphicon glyphicon-chevron-down"></span>
+    </div>
+</div>
+*/
+.info-card {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.info-card .main-area {
+    border: 1px solid #a6a6a6;
+    border-radius: 6px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    background-color: #ffffff;
+    height: 117px;
+    line-height: 23px;
+    position: relative;
+    top: 1px;
+}
+
+.info-card .expand-area {
+    width: 100%;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    text-align: center;
+    background-color: #f8f8f8;
+    border-bottom: 1px solid #a6a6a6;
+    border-left: 1px solid #a6a6a6;
+    border-right: 1px solid #a6a6a6;
+}
+
+.info-card img {
+    width: 80px;
+    height: 80px;
+    margin-top: 17px;
+    margin-left: 18px;
+}
+
+.left-section {
+    display: inline-block;
+    margin-left: 15px;
+    overflow: hidden;
+    margin-bottom: -33px;
+}
+
+.info-card .win-percent {
+    font-size: 55px;
+    font-weight: 100;
+    line-height: 50px;
+    width: 100px;
+}
+
+.info-card .win-rate {
+    text-align: center;
+    float: right;
+    position: relative;
+    top: 20px;
+    right: 20px;
+}
+
+.info-card .win-rate-text {
+    font-size: 20px;
+    font-weight: 300;
+}
+
+.info-card .name {
+    font-size: 30px;
+}
+
+.info-card .details-area {
+    border-left: 1px solid #a6a6a6;
+    border-right: 1px solid #a6a6a6;
+    border-bottom: 1px solid #a6a6a6;
+    position: relative;
+    font-size: 20px;
+}
+
+.info-card .details-area .stat-text {
+    font-weight: 600;
+}
+
+.info-card .details-area a {
+    
+}
+
+.info-card .details-container {
+    padding-top: 10px;
+    padding-left: 20px;
+    padding-bottom: 10px;
+}
+
+.info-card .games-played {
+    font-size: 18px;
+    font-weight: 200;
+}
+
+.info-card .summoner-top-champions img {
+    margin-left: 0px;
+    margin-top: 5px;
+    margin-bottom: 3px;
+    width: 50px;
+    height: 50px;
+}
+
+.info-card .summoner-top-champions .champion-name {
+    position: relative;
+    top: 3px;
+    margin-left: 10px;
+    font-weight: 300;
+    font-size: 23px;
+}
+
+.info-card .summoner-top-champions .champion-winrate {
+    float: right;
+    position: relative;
+    top: 11px;
+    right: 10px;
+}

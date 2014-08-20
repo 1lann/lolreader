@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>LoL Reader</title>
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+	<link href="style.css" rel="stylesheet">
+    <link href="stat-style.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div id="title">
+        <h1>LoL Reader</h1>
+        <h2>A League of Legends game log file reader. Made by 1lann</h2>
+    </div>
+	<div id="main">
+		<h3 id="step-number">Step 1.</h3>
+		<h4 id="instructions">Drag and drop your Logs folder/files on this page</h4>
+	</div>
+	<div id="drop-cover" class="fade-animation">
+        <div id="drop-objects">
+            <h1 id="drop-it" class="fade-animation">Drop it!</h1>
+            <p id="drop-sub" class="fade-animation">Building file list...</p>
+        </div>
+        <div id="progress-cover" class="fade-animation"></div>
+	</div>
+    <div id="stats">
+        <div id="general-stats">
+            <div id="title-div">
+                <h1 id="summoner-name">Summoner Name</h1>
+            </div>
+            <div id="general-stats-div">
+                <div id="general-stats-left">
+                    
+                </div>
+                <div id="general-stats-right">
+                    
+                </div>
+            </div>
+        </div>
+        <div id="left-container">
+            <h1 class="section-title">Champions you play as the most</h1>
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon">Search</span>
+                <input type="text" class="form-control" placeholder="Champion name...">
+            </div>
+            <div id="most-played-data">
+                
+            </div>
+        </div>
+        <div id="right-container">
+            <h1 class="section-title">People you play with the most</h1>
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon">Search</span>
+                <input type="text" class="form-control" placeholder="Summoner name...">
+            </div>
+            <div id="played-with-data">
+
+            </div>
+        </div>
+    </div>
+</div>
+<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js"></script>
+<script src="process.js"></script>
+<script src="interaction.js"></script>
+<script src="stats.js"></script>
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-41584026-2', 'auto');
+ga('require', 'displayfeatures');
+ga('send', 'pageview');
+</script>
+</body>
+</html>
