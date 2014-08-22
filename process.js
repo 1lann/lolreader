@@ -301,12 +301,14 @@ var processFile = function(fileEntry) {
 };
 
 var progressInterval;
+var lastProgress = -1;
+var lastCheck = Date.now()
 
 var displayProgress = function() {
     var percent = Math.ceil((processProgress/numOfFiles)*1000-0.5)/10;
     $("#progress-cover").width(percent.toString()+"%");
     $("#drop-sub").text("Progress: "+percent.toString()+"%" + " (" + numOfFiles.toString() + " files)");
-    if (percent >= 100) {
+    if ((processProgress >= numOfFiles) || ((processProgress <= lastProgress) && (percent > 90) && (Date.now() - lastCheck > 3000))) {
         clearInterval(progressInterval);   
         if (Object.keys(gameDatabase).length <= 0) {
             processFailure("No usable logs available!")
@@ -317,6 +319,11 @@ var displayProgress = function() {
         $("#main, #title").hide();
         $("#drop-cover").removeClass("show")
         $("#stats").show();
+    } else {
+        if (processProgress > lastProgress) {
+            lastCheck = Date.now()
+        }
+        lastProgress = processProgress;
     }
 }
 
@@ -325,9 +332,9 @@ var busy = false;
 var folderProcessStack = [];
 var folderProcessInterval;
 
-var processData;
+var searchData;
 
-var processFolders = function() {
+var searchFolders = function() {
     if (!busy) {
         if (folderProcessStack.length > 0) {
             var folderEntry = folderProcessStack.shift()
@@ -337,12 +344,24 @@ var processFolders = function() {
 
             var readEntries = function() {
                 dirReader.readEntries (function(results) {
-                    if (!results.length) {
-                        processData(entries);
-                        return;
-                    } else {
-                        entries = entries.concat(toArray(results));
+                    if (correctDirectory && results.length) {
+                        for (var i in results) {
+                            numOfFiles++;
+                            processFile(results[i]);
+                        }
                         readEntries();
+                    } else if (results.length) {
+                        if (searchData(results)) {
+                            progressInterval = setInterval(displayProgress, 200);
+                            for (var i in results) {
+                                numOfFiles++;
+                                processFile(results[i]);
+                            }
+                            readEntries();
+                        }
+                    } else {
+                        console.log("End")
+                        return;
                     }
                 }, function(e){console.log("File listing error",e);});
             };
@@ -357,7 +376,7 @@ var processFolders = function() {
     }
 }
 
-processData = function(files) {
+var searchData = function(files) {
     if (correctDirectory) {
         return;   
     }
@@ -389,26 +408,24 @@ processData = function(files) {
         if (entry.isFile && i == 0) {
             if (processFile(entry)) {
                 processProgress = 0;
-                numOfFiles = length;
                 clearInterval(folderProcessInterval);
                 folderProcessInterval = null;
                 folderProcessStack = [];
-                if (numOfFiles >= 1) {
+                numOfFiles = 0;
+                if (length >= 1) {
                     correctDirectory = true;
-                    console.log("Using log file location: "+entry.fullPath);
-                    progressInterval = setInterval(displayProgress, 200);
+                    console.log("Using log file location: " + entry.fullPath);
+                    return true;
                 } else {
                     files = null;
                     processFailure("Not enough logs to generate useful information!");   
                     return;
                 }
             }
-        } else if (entry.isFile && correctDirectory) {
-            processFile(entry);
         } else if (!entry.isFile && !correctDirectory) {
             folderProcessStack.push(entry);
             if (!folderProcessInterval) {
-                folderProcessInterval = setInterval(processFolders, 10);
+                folderProcessInterval = setInterval(searchFolders, 10);
             }
         }
     }
@@ -416,6 +433,30 @@ processData = function(files) {
     if (folderProcessStack.length <= 0 && !correctDirectory) {
         files = null;
         processFailure("Could not find logs - Try again");
+    }
+}
+
+var processStartPoint = function(files) {
+    var entry;
+    if (files[0].webkitGetAsEntry) {
+        entry = files[0].webkitGetAsEntry();
+    } else {
+        entry = files[0];
+    }
+    if (processFile(entry)) {
+        progressInterval = setInterval(displayProgress, 200);
+        numOfFiles = 0;
+        for (var i in files) {
+            if (files[i].webkitGetAsEntry) {
+                entry = files[i].webkitGetAsEntry();
+            } else {
+                entry = files[i];
+            }
+            numOfFiles++;
+            processFile(entry);
+        }
+    } else {
+        searchData(files);
     }
 }
 

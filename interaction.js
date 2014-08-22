@@ -61,20 +61,27 @@ document.ondrop = function(e) {
     setTimeout(changeTextTimeout, 250);
     correctDirectory = false;
     try {
-        processData(e.dataTransfer.items);
+        processStartPoint(e.dataTransfer.items);
     } catch(err) {
+        console.log(err);
         if (e.dataTransfer) {
             var alternativeFiles = e.dataTransfer.files;
             if (alternativeFiles) {
+                console.log("Using alternative file reading")
                 if (alternativeFiles[0].size > 0) {
                     if (fileNameRegex.exec(alternativeFiles[0].name)) {
                         numOfFiles = alternativeFiles.length;
+                        displayProgress();
                         progressInterval = setInterval(displayProgress, 200);
-                        for (i = 0; i < alternativeFiles.length; i++) {
-                            if (alternativeFiles[i].size > 0) {
-                                processFileObject(alternativeFiles[i], alternativeFiles[i].name);
+                        setTimeout(function(alternativeFiles) {
+                            return function() {
+                                for (i = 0; i < alternativeFiles.length; i++) {
+                                    if (alternativeFiles[i].size > 0) {
+                                        processFileObject(alternativeFiles[i], alternativeFiles[i].name);
+                                    }
+                                }
                             }
-                        }
+                        }(alternativeFiles), 500);
                     } else {
                         processFailure("Could not find logs - Try again");
                     }
