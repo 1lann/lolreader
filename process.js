@@ -181,8 +181,9 @@ var championsPlayedWith = function(summoner) {
 }
 
 var fileNameRegex = /(\d{4}).(\d{2}).(\d{2}).(\d{2}).(\d{2}).(\d{2}).r3dlog\.txt$/
-var playersRegex = /Spawning champion \(([^\)]+)\) with skinID \d+ on team (\d)00 for clientID \d and summonername \(([^\)]+)\) \(is HUMAN PLAYER\)/g
+var playersRegex = /Spawning champion \(([^\)]+)\) with skinID \d+ on team (\d)00 for clientID -*\d and summonername \(([^\)]+)\) \(is [^\)]+\)/g
 var altPlayerRegex = /Hero ([^(]+).+ created for (.+)/g
+var botRegex = /^\w+ Bot$/
 var gameEndTimeRegex = /^(\d+\.\d+).+{"messageType":"riot__game_client__connection_info","message_body":"Game exited","exit_code":"EXITCODE_([^"]+)"}$/m
 var altGameEndRegex = /^(\d+\.\d+).+Game exited$/m
 var gameStartTimeRegex= /^(\d+\.\d+).+GAMESTATE_GAMELOOP Begin$/m
@@ -213,6 +214,7 @@ var processFileObject = function(file, fileName) {
         if (!gameID) {
             gameID = [null, gameDataConstruct["date"], "unknown"];
         }
+
         var gameEnd = gameEndTimeRegex.exec(logData);
         var gameEndTime;
         if (gameEnd) {
@@ -225,6 +227,7 @@ var processFileObject = function(file, fileName) {
                 gameEndTime = parseFloat(altEndGame[1]);
             }
         }
+
         var gameStart = gameStartTimeRegex.exec(logData);
         if (gameStart) {
             var gameStartTime = parseFloat(gameStart[1]);
@@ -239,16 +242,26 @@ var processFileObject = function(file, fileName) {
             gameDataConstruct["time"] = 0;
             gameDataConstruct["loading-time"] = 0;
         }
+
+        gameDataConstruct["custom"] = false
+
         var gameType = gameTypeRegex.exec(logData);
         if (gameType) {
             gameDataConstruct["type"] = gameType[1].toLowerCase();
         } else {
             gameDataConstruct["type"] = "unknown";
         }
+
+        var numberOfBots = 0
+        var numberOfPlayers = 0
         if (logData.indexOf("Creating Hero...") > 0) {
             gameDataConstruct["blue"] = {};
             gameDataConstruct["purple"] = {};
             while (player = playersRegex.exec(logData)) {
+                if (botRegex.exec(player[3])) {
+                    numberOfBots++;        
+                }
+                numberOfPlayers++;
                 if (player[2] == "1") {
                     gameDataConstruct["blue"][player[3]] = player[1];
                 } else {
@@ -262,6 +275,10 @@ var processFileObject = function(file, fileName) {
                 var teamIndex = 0;
                 while (player = altPlayerRegex.exec(logData)) {
                     teamIndex++;
+                    if (botRegex.exec(player[2])) {
+                        numberOfBots++;        
+                    }
+                    numberOfPlayers++;
                     if (teamIndex > 5) {
                         // Purple
                         gameDataConstruct["purple"][player[2]] = player[1];
@@ -274,6 +291,15 @@ var processFileObject = function(file, fileName) {
                     pushIfNotPresent(summonerDatabase[player[2]][player[1]], gameID[1]);
                 }
             }
+
+            if (numberOfBots >= 3) {
+                gameDataConstruct["type"] = "bot";
+            }
+
+            if (numberOfPlayers < 10) {
+                gameDataConstruct["custom"] = true;
+            }
+
             gameDataConstruct["region"] = gameID[2].toLowerCase();
             if (gameDataConstruct["region"] == "oc") {
                 gameDataConstruct["region"] = "oce";   
@@ -345,7 +371,7 @@ var searchFolders = function() {
             var readEntries = function() {
                 dirReader.readEntries (function(results) {
                     if (correctDirectory && results.length) {
-                        for (var i in results) {
+                        for (var i = 0; i < results.length; i++) {
                             numOfFiles++;
                             processFile(results[i]);
                         }
@@ -353,7 +379,7 @@ var searchFolders = function() {
                     } else if (results.length) {
                         if (searchData(results)) {
                             progressInterval = setInterval(displayProgress, 200);
-                            for (var i in results) {
+                            for (var i = 0; i < results.length; i++) {
                                 numOfFiles++;
                                 processFile(results[i]);
                             }
@@ -446,7 +472,7 @@ var processStartPoint = function(files) {
     if (processFile(entry)) {
         progressInterval = setInterval(displayProgress, 200);
         numOfFiles = 0;
-        for (var i in files) {
+        for (var i = 0; i < files.length; i++) {
             if (files[i].webkitGetAsEntry) {
                 entry = files[i].webkitGetAsEntry();
             } else {
