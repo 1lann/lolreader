@@ -355,7 +355,6 @@ var processFile = function(fileEntry) {
 	}
 };
 
-var progressInterval;
 var lastProgress = -1;
 var lastCheck = Date.now()
 
@@ -411,6 +410,7 @@ var searchFolders = function() {
 
 						if (numOfErrors >= results.length) {
 							console.log("Quit search")
+							clearInterval(folderProcessInterval);
 							return
 						} else {
 							readEntries();
@@ -427,6 +427,7 @@ var searchFolders = function() {
 							}
 							if (numOfErrors >= results.length) {
 								console.log("Quit search")
+								clearInterval(folderProcessInterval);
 								return
 							} else {
 								readEntries();
