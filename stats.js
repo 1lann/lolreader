@@ -54,6 +54,7 @@ var replaceChampionNames = {
     "Velkoz": "Vel'Koz",
     "XinZhao": "Xin Zhao",
 }
+
 var getProperName = function(champion) {
     if (replaceChampionNames[champion]) return replaceChampionNames[champion];
     return champion;
@@ -104,7 +105,7 @@ var drawName = function() {
 }
 
 var expandChampion = function(champion) {
-    var detailsContainer = $("#most-played-data .info-card[cardid='" + champion + "'] .details-container")
+    var detailsContainer = $("#most-played-data .info-card[cardid='" + attributeString(champion) + "'] .details-container")
     var dataToDraw = [];
     
     detailsContainer.html("");
@@ -130,16 +131,16 @@ var expandChampion = function(champion) {
     
     detailsContainer.slideDown();
     
-    $("#most-played-data .info-card[cardid='" + champion + "'] .expand-area .glyphicon").removeClass("glyphicon-chevron-down");
-    $("#most-played-data .info-card[cardid='" + champion + "'] .expand-area .glyphicon").addClass("glyphicon-chevron-up");
+    $("#most-played-data .info-card[cardid='" + attributeString(champion) + "'] .expand-area .glyphicon").removeClass("glyphicon-chevron-down");
+    $("#most-played-data .info-card[cardid='" + attributeString(champion) + "'] .expand-area .glyphicon").addClass("glyphicon-chevron-up");
     
 }
 
 var collapseChampion = function(champion) {
-    $("#most-played-data .info-card[cardid='" + champion + "'] .details-container").slideUp();
+    $("#most-played-data .info-card[cardid='" + attributeString(champion) + "'] .details-container").slideUp();
     
-    $("#most-played-data .info-card[cardid='" + champion + "'] .expand-area .glyphicon").removeClass("glyphicon-chevron-up");
-    $("#most-played-data .info-card[cardid='" + champion + "'] .expand-area .glyphicon").addClass("glyphicon-chevron-down");
+    $("#most-played-data .info-card[cardid='" + attributeString(champion) + "'] .expand-area .glyphicon").removeClass("glyphicon-chevron-up");
+    $("#most-played-data .info-card[cardid='" + attributeString(champion) + "'] .expand-area .glyphicon").addClass("glyphicon-chevron-down");
 }
 
 var drawChampionsList = function(searchTerm, expanded) {
@@ -160,12 +161,12 @@ var drawChampionsList = function(searchTerm, expanded) {
         if (key >= 20) break;
         var rates = getRates(summonerName, resultDatabase[key][0]);
         var winrate = getPercentage(rates[1],rates[2])
-        var card = '<div class="info-card" cardid=' + resultDatabase[key][0] + '><div class="main-area"><img src="http://ddragon.leagueoflegends.com/cdn/4.10.7/img/champion/' + resultDatabase[key][0] + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">' + getProperName(resultDatabase[key][0]) + '</span><br><span class="games-played">' + resultDatabase[key][1] + ' games played</span></div><div class="win-rate"><span class="win-percent">' + winrate + '%</span><br><span class="win-rate-text">Winrate</span></div></div><div class="details-area"><div class="details-container" style="display:none;"></div></div><div class="expand-area"><span class="glyphicon glyphicon-chevron-down"></span></div></div>'
+        var card = '<div class="info-card" cardid=\'' + attributeString(resultDatabase[key][0]) + '\'><div class="main-area"><img src="http://ddragon.leagueoflegends.com/cdn/4.10.7/img/champion/' + resultDatabase[key][0] + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">' + getProperName(resultDatabase[key][0]) + '</span><br><span class="games-played">' + resultDatabase[key][1] + ' games played</span></div><div class="win-rate"><span class="win-percent">' + winrate + '%</span><br><span class="win-rate-text">Winrate</span></div></div><div class="details-area"><div class="details-container" style="display:none;"></div></div><div class="expand-area"><span class="glyphicon glyphicon-chevron-down"></span></div></div>'
         $("#most-played-data").append(card);
         
         var clickFunction = new Function('if ($("#most-played-data .info-card[cardid=\'' + resultDatabase[key][0] + '\'] .expand-area .glyphicon.glyphicon-chevron-down").length) {expandChampion("' + resultDatabase[key][0] + '");} else {collapseChampion("' + resultDatabase[key][0] + '");}');
         
-        $("#most-played-data .info-card[cardid='" + resultDatabase[key][0] + "'] .expand-area").click(clickFunction);
+        $("#most-played-data .info-card[cardid='" + attributeString(resultDatabase[key][0]) + "'] .expand-area").click(clickFunction);
     }
     
     for (key in expanded) {
@@ -198,7 +199,7 @@ var getTopChampions = function(player) {
 }
 
 var attributeString = function(text) {
-    return text.replace(/\s/g, "_");
+    return text.replace(/\s/g, "_").replace("'", "^");
 }
 
 var expandPlayer = function(player) {
@@ -280,7 +281,17 @@ var drawPlayersList = function(searchTerm, expanded) {
             winrate = winrate.toString() + "%"
         }
         var region = getRegion(resultDatabase[key][0]);
-        var card = '<div class="info-card" cardid=' + attributeString(resultDatabase[key][0]) + '><div class="main-area"><img src="http://avatar.leagueoflegends.com/' + region + '/' + resultDatabase[key][0] + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">' + resultDatabase[key][0] + '</span><br><span class="games-played">' + resultDatabase[key][1] + ' games played together</span></div><div class="win-rate"><span class="win-percent">' + winrate + '</span><br><span class="win-rate-text">' + enemy + '</span></div></div><div class="details-area"><div class="details-container" style="display:none;"></div></div><div class="expand-area"><span class="glyphicon glyphicon-chevron-down"></span></div></div>'
+        var card;
+
+        if (botRegex.exec(resultDatabase[key][0])) {
+            var botChampion = botRegex.exec(resultDatabase[key][0])[1];
+            if (botChampion == "Wukong") botChampion = "MonkeyKing"
+            botChampion = botChampion.replace("'", "").replace(" ", "")
+            card = '<div class="info-card" cardid=\'' + attributeString(resultDatabase[key][0]) + '\'><div class="main-area"><img src="http://ddragon.leagueoflegends.com/cdn/4.10.7/img/champion/' + botChampion + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">' + resultDatabase[key][0] + '</span><br><span class="games-played">' + resultDatabase[key][1] + ' games played together</span></div><div class="win-rate"><span class="win-percent">' + winrate + '</span><br><span class="win-rate-text">' + enemy + '</span></div></div><div class="details-area"><div class="details-container" style="display:none;"></div></div><div class="expand-area"><span class="glyphicon glyphicon-chevron-down"></span></div></div>'
+        } else {
+            card = '<div class="info-card" cardid=\'' + attributeString(resultDatabase[key][0]) + '\'><div class="main-area"><img src="http://avatar.leagueoflegends.com/' + region + '/' + resultDatabase[key][0] + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">' + resultDatabase[key][0] + '</span><br><span class="games-played">' + resultDatabase[key][1] + ' games played together</span></div><div class="win-rate"><span class="win-percent">' + winrate + '</span><br><span class="win-rate-text">' + enemy + '</span></div></div><div class="details-area"><div class="details-container" style="display:none;"></div></div><div class="expand-area"><span class="glyphicon glyphicon-chevron-down"></span></div></div>'
+        }
+        
         $("#played-with-data").append(card);
         
         var clickFunction = new Function('if ($("#played-with-data .info-card[cardid=\'' + attributeString(resultDatabase[key][0]) + '\'] .expand-area .glyphicon.glyphicon-chevron-down").length) {expandPlayer("' + resultDatabase[key][0] + '");} else {collapsePlayer("' + resultDatabase[key][0] + '");}');
