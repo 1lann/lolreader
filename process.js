@@ -38,13 +38,13 @@ var getRegion = function(summoner) {
 	var mostOccur = 0;
 	var mostRegion = "";
 	for (var region in regionFrequency) {
-		if (regionFrequency[region] > mostOccur) {
+		if (regionFrequency[region] > mostOccur && region != "unknown") {
 			mostOccur = regionFrequency[region];
 			mostRegion = region;
 		}
 	}
 
-	if (mostRegion == "unknown") {
+	if (mostRegion.length < 1) {
 		mostRegion = getRegion(summonerName);
 	}
 
