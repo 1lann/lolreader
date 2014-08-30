@@ -409,8 +409,7 @@ var searchFolders = function() {
 						}
 
 						if (numOfErrors >= results.length) {
-							console.log("Quit search")
-							clearInterval(folderProcessInterval);
+							console.log("Quit search");
 							return
 						} else {
 							readEntries();
@@ -426,8 +425,7 @@ var searchFolders = function() {
 								}
 							}
 							if (numOfErrors >= results.length) {
-								console.log("Quit search")
-								clearInterval(folderProcessInterval);
+								console.log("Quit search");
 								return
 							} else {
 								readEntries();
