@@ -2,6 +2,7 @@ var dropZone = $("#drop-cover, #drop-it");
 var cancelAnimateOut = false;
 var processLock = false;
 var correctDirectory = false;
+var progressInterval;
 	
 $(document).bind('dragover', function (e) {
     if (!processLock) {
