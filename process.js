@@ -38,7 +38,7 @@ var getRegion = function(summoner) {
 	var mostOccur = 0;
 	var mostRegion = "";
 	for (var region in regionFrequency) {
-		if (regionFrequency[region] > mostOccur) {
+		if (regionFrequency[region] > mostOccur && region != "unknown") {
 			mostOccur = regionFrequency[region];
 			mostRegion = region;
 		}
@@ -415,7 +415,7 @@ var searchFolders = function() {
 						}
 
 						if (numOfErrors >= results.length) {
-							console.log("Quit search")
+							console.log("Quit search");
 							return
 						} else {
 							readEntries();
@@ -431,7 +431,7 @@ var searchFolders = function() {
 								}
 							}
 							if (numOfErrors >= results.length) {
-								console.log("Quit search")
+								console.log("Quit search");
 								return
 							} else {
 								readEntries();

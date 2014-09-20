@@ -73,7 +73,9 @@ document.ondrop = function(e) {
                     if (fileNameRegex.exec(alternativeFiles[0].name)) {
                         numOfFiles = alternativeFiles.length;
                         displayProgress();
-                        progressInterval = setInterval(displayProgress, 200);
+                        if (!progressInterval) {
+                            progressInterval = setInterval(displayProgress, 200);
+                        }
                         setTimeout(function(alternativeFiles) {
                             return function() {
                                 for (i = 0; i < alternativeFiles.length; i++) {
