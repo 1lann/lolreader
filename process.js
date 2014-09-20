@@ -44,7 +44,11 @@ var getRegion = function(summoner) {
 		}
 	}
 
+<<<<<<< HEAD
 	if (mostRegion.length < 1) {
+=======
+	if (mostRegion == "unknown" && summoner != summonerName) {
+>>>>>>> master
 		mostRegion = getRegion(summonerName);
 	}
 
@@ -357,27 +361,33 @@ var processFile = function(fileEntry) {
 
 var lastProgress = -1;
 var lastCheck = Date.now()
+var statsShown = false;
 
 var displayProgress = function() {
 	var percent = Math.ceil((processProgress/numOfFiles)*1000-0.5)/10;
 	$("#progress-cover").width(percent.toString()+"%");
 	$("#drop-sub").text("Progress: "+percent.toString()+"%" + " (" + numOfFiles.toString() + " files)");
-	if ((processProgress >= numOfFiles) || ((processProgress <= lastProgress) && (percent > 90) && (Date.now() - lastCheck > 5000))) {
-		clearInterval(progressInterval);   
-		if (Object.keys(gameDatabase).length <= 0) {
-			processFailure("No usable logs available!")
-			return;
-		}
-		getSummonerName();
-		displayAllStats();
-		$("#main, #title").hide();
-		$("#drop-cover").removeClass("show")
-		$("#stats").show();
+	if (statsShown) {
+		clearInterval(progressInterval); 
 	} else {
-		if (processProgress > lastProgress) {
-			lastCheck = Date.now()
+		if ((processProgress >= numOfFiles) || ((processProgress <= lastProgress) && (percent > 90) && (Date.now() - lastCheck > 5000))) {
+			clearInterval(progressInterval);   
+			statsShown = true;
+			if (Object.keys(gameDatabase).length <= 0) {
+				processFailure("No usable logs available!")
+				return;
+			}
+			getSummonerName();
+			displayAllStats();
+			$("#main, #title").hide();
+			$("#drop-cover").removeClass("show")
+			$("#stats").show();
+		} else {
+			if (processProgress > lastProgress) {
+				lastCheck = Date.now()
+			}
+			lastProgress = processProgress;
 		}
-		lastProgress = processProgress;
 	}
 }
 
