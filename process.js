@@ -44,11 +44,7 @@ var getRegion = function(summoner) {
 		}
 	}
 
-<<<<<<< HEAD
-	if (mostRegion.length < 1) {
-=======
 	if (mostRegion == "unknown" && summoner != summonerName) {
->>>>>>> master
 		mostRegion = getRegion(summonerName);
 	}
 
