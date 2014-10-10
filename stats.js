@@ -320,6 +320,7 @@ function bindButtons() {
                 $(this).addClass("active")
             }
 
+            summonersPlayedWith();
             displayAllStats();
             setTimeout(function() {
                 clickBusy = false;
@@ -336,6 +337,7 @@ function bindButtons() {
                 $(this).addClass("active")
             }
 
+            summonersPlayedWith();
             displayAllStats();
             setTimeout(function() {
                 clickBusy = false;
@@ -352,6 +354,7 @@ function bindButtons() {
                 $(this).addClass("active")
             }
 
+            summonersPlayedWith();
             displayAllStats();
             setTimeout(function() {
                 clickBusy = false;
