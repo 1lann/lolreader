@@ -1,3 +1,5 @@
+//jscs:disable
+
 // Everything from here down is for core development
 // This will then be moved into a WebWorker in the future supposedly...
 
@@ -7,6 +9,10 @@ var summonerMetaDatabase = {};
 var summonerFrequencyDatabase = {};
 var processedFiles = {}; // To prevent file processing duplication
 var summonerName;
+
+var showNormals = true;
+var showBots = true;
+var showCustoms = true;
 
 var gameStats = {
 	"loading": 0
@@ -58,12 +64,21 @@ var getRegion = function(summoner) {
 }
 
 var ratesCache = {}
+var ratesState = [true, true, true]
 var getRates = function(summoner, champion) {
+	if ((ratesState[0] != showNormals) ||
+		(ratesState[1] != showBots) ||
+		(ratesState[2] != showCustoms)) {
+			ratesState = [showNormals, showBots, showCustoms];
+			ratesCache = {}
+	}
+
 	if (champion && ratesCache[summoner+":"+champion]) {
 		return ratesCache[summoner+":"+champion];
 	} else if (!champion && ratesCache[summoner]) {
 		return ratesCache[summoner];
 	}
+
 	var blueWins = 0;
 	var blueLoses = 0;
 	var purpleWins = 0;
@@ -74,19 +89,24 @@ var getRates = function(summoner, champion) {
 		for (var champion in summonerDatabase[summoner]) {
 			for (var key in summonerDatabase[summoner][champion]) {
 				var gameObject = gameDatabase[summonerDatabase[summoner][champion][key]];
-				if (gameObject["blue"][summonerName] && gameObject["blue"][summoner]) {
-					blueGames++;
-					if (gameObject["result"] == "win") {
-						blueWins++;
-					} else if (gameObject["result"] == "lose") {
-						blueLoses++;
-					}
-				} else if (gameObject["purple"][summonerName] && gameObject["purple"][summoner]) {
-					purpleGames++;
-					if (gameObject["result"] == "win") {
-						purpleWins++;
-					} else if (gameObject["result"] == "lose") {
-						purpleLoses++;
+				if ((gameObject.custom && showCustoms) || !gameObject.custom) {
+					if ((gameObject.type == "classic" && showNormals) ||
+						(gameObject.type == "bot" && showBots)) {
+						if (gameObject["blue"][summonerName] && gameObject["blue"][summoner]) {
+							blueGames++;
+							if (gameObject["result"] == "win") {
+								blueWins++;
+							} else if (gameObject["result"] == "lose") {
+								blueLoses++;
+							}
+						} else if (gameObject["purple"][summonerName] && gameObject["purple"][summoner]) {
+							purpleGames++;
+							if (gameObject["result"] == "win") {
+								purpleWins++;
+							} else if (gameObject["result"] == "lose") {
+								purpleLoses++;
+							}
+						}
 					}
 				}
 			}
@@ -95,19 +115,24 @@ var getRates = function(summoner, champion) {
 	} else {
 		for (var key in summonerDatabase[summoner][champion]) {
 			var gameObject = gameDatabase[summonerDatabase[summoner][champion][key]];
-			if (gameObject["blue"][summonerName] && gameObject["blue"][summoner]) {
-				blueGames++;
-				if (gameObject["result"] == "win") {
-					blueWins++;
-				} else if (gameObject["result"] == "lose") {
-					blueLoses++;
-				}
-			} else if (gameObject["purple"][summonerName] && gameObject["purple"][summoner]) {
-				purpleGames++;
-				if (gameObject["result"] == "win") {
-					purpleWins++;
-				} else if (gameObject["result"] == "lose") {
-					purpleLoses++;
+			if ((gameObject.custom && showCustoms) || !gameObject.custom) {
+				if ((gameObject.type == "classic" && showNormals) ||
+					(gameObject.type == "bot" && showBots)) {
+					if (gameObject["blue"][summonerName] && gameObject["blue"][summoner]) {
+						blueGames++;
+						if (gameObject["result"] == "win") {
+							blueWins++;
+						} else if (gameObject["result"] == "lose") {
+							blueLoses++;
+						}
+					} else if (gameObject["purple"][summonerName] && gameObject["purple"][summoner]) {
+						purpleGames++;
+						if (gameObject["result"] == "win") {
+							purpleWins++;
+						} else if (gameObject["result"] == "lose") {
+							purpleLoses++;
+						}
+					}
 				}
 			}
 		}
@@ -118,20 +143,30 @@ var getRates = function(summoner, champion) {
 
 var timeSpentPlaying = function(summoner, champion) {
 	var totalTime = 0;
-	
+
 	if (champion) {
 		for (var key in summonerDatabase[summoner][champion]) {
 			var gameObject = gameDatabase[summonerDatabase[summoner][champion][key]];
-			if (gameObject["time"] && (gameObject["blue"][summonerName] || gameObject["purple"][summonerName])) {
-				totalTime = totalTime+gameDatabase[summonerDatabase[summoner][champion][key]]["time"];
+			if ((gameObject.custom && showCustoms) || !gameObject.custom) {
+				if ((gameObject.type == "classic" && showNormals) ||
+					(gameObject.type == "bot" && showBots)) {
+					if (gameObject["time"] && (gameObject["blue"][summonerName] || gameObject["purple"][summonerName])) {
+						totalTime = totalTime+gameDatabase[summonerDatabase[summoner][champion][key]]["time"];
+					}
+				}
 			}
 		}
 	} else {
 		for (var champ in summonerDatabase[summoner]) {
 			for (var key in summonerDatabase[summoner][champ]) {
 				var gameObject = gameDatabase[summonerDatabase[summoner][champ][key]];
-				if (gameObject["time"] && (gameObject["blue"][summonerName] || gameObject["purple"][summonerName])) {
-					totalTime = totalTime+gameDatabase[summonerDatabase[summoner][champ][key]]["time"];
+				if ((gameObject.custom && showCustoms) || !gameObject.custom) {
+					if ((gameObject.type == "classic" && showNormals) ||
+						(gameObject.type == "bot" && showBots)) {
+						if (gameObject["time"] && (gameObject["blue"][summonerName] || gameObject["purple"][summonerName])) {
+							totalTime = totalTime+gameDatabase[summonerDatabase[summoner][champ][key]]["time"];
+						}
+					}
 				}
 			}
 		}
@@ -142,9 +177,9 @@ var timeSpentPlaying = function(summoner, champion) {
 var getSummonerName = function() {
 	var summonerFrequency = {};
 	for (var summoner in summonerDatabase) {
-		summonerFrequency[summoner] = 0;
 		for (var championName in summonerDatabase[summoner]) {
 			for (var key in summonerDatabase[summoner][championName]) {
+				if (!summonerFrequency[summoner]) summonerFrequency[summoner] = 0;
 				summonerFrequency[summoner]++;
 			}
 		}
@@ -154,7 +189,7 @@ var getSummonerName = function() {
 	frequencyInOrder.sort(function(a, b) {
 		a = a[1];
 		b = b[1];
-		
+
 		return a < b ? 1 : (a > b ? -1:0);
 	});
 	summonerName = frequencyInOrder.shift()[0];
@@ -172,7 +207,7 @@ var summonersPlayedWith = function(summoner) {
 	frequencyInOrder.sort(function(a, b) {
 		a = a[1];
 		b = b[1];
-		
+
 		return a < b ? 1 : (a > b ? -1:0);
 	});
 	frequencyInOrder.shift();
@@ -183,15 +218,24 @@ var championsPlayedWith = function(summoner) {
 	var championFrequency = {};
 	var total = 0;
 	for (var champion in summonerDatabase[summoner]) {
-		championFrequency[champion] = summonerDatabase[summoner][champion].length;
-		total = total+summonerDatabase[summoner][champion].length;
+		for (var index in summonerDatabase[summoner][champion]) {
+			var gameObject = gameDatabase[summonerDatabase[summoner][champion][index]];
+			if ((gameObject.custom && showCustoms) || !gameObject.custom) {
+				if ((gameObject.type == "classic" && showNormals) ||
+					(gameObject.type == "bot" && showBots)) {
+					if (!championFrequency[champion]) championFrequency[champion] = 0;
+					championFrequency[champion]++;
+					total++;
+				}
+			}
+		}
 	}
 	var frequencyInOrder = []
 	for (var key in championFrequency) frequencyInOrder.push([key, championFrequency[key]]);
 	frequencyInOrder.sort(function(a, b) {
 		a = a[1];
 		b = b[1];
-		
+
 		return a < b ? 1 : (a > b ? -1:0);
 	});
 	return frequencyInOrder;
@@ -212,7 +256,7 @@ var gamePlatformRegex = /Receiving PKT_World_SendGameNumber, GameID: [^,]+, Plat
 var pushIfNotPresent = function(arr, data) {
 	for (var key in arr) {
 		if (arr[key] == data) {
-			return false   
+			return false
 		}
 	}
 	arr.push(data);
@@ -221,7 +265,7 @@ var pushIfNotPresent = function(arr, data) {
 
 var processFileObject = function(file, fileName) {
 	var reader = new FileReader();
-	
+
 	reader.onloadend = function(e) {
 		var gameDataConstruct = {};
 		var logData = this.result;
@@ -255,7 +299,7 @@ var processFileObject = function(file, fileName) {
 			if (gameEndTime) {
 				gameDataConstruct["time"] = gameEndTime-gameStartTime;
 			} else {
-				gameDataConstruct["time"] = 0;   
+				gameDataConstruct["time"] = 0;
 			}
 		} else {
 			gameDataConstruct["time"] = 0;
@@ -278,7 +322,7 @@ var processFileObject = function(file, fileName) {
 			gameDataConstruct["purple"] = {};
 			while (player = playersRegex.exec(logData)) {
 				if (botRegex.exec(player[3])) {
-					numberOfBots++;        
+					numberOfBots++;
 				}
 				numberOfPlayers++;
 				if (player[2] == "1") {
@@ -295,7 +339,7 @@ var processFileObject = function(file, fileName) {
 				while (player = altPlayerRegex.exec(logData)) {
 					teamIndex++;
 					if (botRegex.exec(player[2])) {
-						numberOfBots++;        
+						numberOfBots++;
 					}
 					numberOfPlayers++;
 					if (teamIndex > 5) {
@@ -324,7 +368,7 @@ var processFileObject = function(file, fileName) {
 			if (gameRegion) {
 				gameDataConstruct["region"] = gameRegion[1].toLowerCase();
 				if (gameDataConstruct["region"] == "oc") {
-					gameDataConstruct["region"] = "oce";   
+					gameDataConstruct["region"] = "oce";
 				}
 			} else {
 				gameDataConstruct["region"] = "unknown";
@@ -364,10 +408,10 @@ var displayProgress = function() {
 	$("#progress-cover").width(percent.toString()+"%");
 	$("#drop-sub").text("Progress: "+percent.toString()+"%" + " (" + numOfFiles.toString() + " files)");
 	if (statsShown) {
-		clearInterval(progressInterval); 
+		clearInterval(progressInterval);
 	} else {
 		if ((processProgress >= numOfFiles) || ((processProgress <= lastProgress) && (percent > 90) && (Date.now() - lastCheck > 5000))) {
-			clearInterval(progressInterval);   
+			clearInterval(progressInterval);
 			statsShown = true;
 			if (Object.keys(gameDatabase).length <= 0) {
 				processFailure("No usable logs available!")
@@ -398,7 +442,7 @@ var searchFolders = function() {
 	if (!busy) {
 		if (folderProcessStack.length > 0) {
 			var folderEntry = folderProcessStack.shift()
-			
+
 			var dirReader = folderEntry.createReader();
 			var entries = [];
 
@@ -408,7 +452,7 @@ var searchFolders = function() {
 					if (correctDirectory && results.length) {
 						for (var i = 0; i < results.length; i++) {
 							if (processFile(results[i])) {
-								numOfFiles++;  
+								numOfFiles++;
 							} else {
 								numOfErrors++;
 							}
@@ -425,7 +469,7 @@ var searchFolders = function() {
 							progressInterval = setInterval(displayProgress, 200);
 							for (var i = 0; i < results.length; i++) {
 								if (processFile(results[i])) {
-									numOfFiles++;  
+									numOfFiles++;
 								} else {
 									numOfErrors++;
 								}
@@ -443,7 +487,7 @@ var searchFolders = function() {
 					}
 				}, function(e){console.log("File listing error",e);});
 			};
-			
+
 			readEntries();
 		} else {
 			clearInterval(folderProcessInterval);
@@ -456,7 +500,7 @@ var searchFolders = function() {
 
 var searchData = function(files) {
 	if (correctDirectory) {
-		return;   
+		return;
 	}
 	busy = true;
 	levels++;
@@ -471,18 +515,18 @@ var searchData = function(files) {
 	var length = files.length;
 	for (var i = 0; i < length; i++) {
 		var entry;
-		
+
 		if (files[i].webkitGetAsEntry) {
 			entry = files[i].webkitGetAsEntry();
 		} else {
 			entry = files[i];
 		}
-		
+
 		if (!entry) {
 			processFailure("You didn't drop a folder!");
 			break;
 		}
-		
+
 		if (entry.isFile && i == 0) {
 			if (processFile(entry)) {
 				processProgress = 0;
@@ -496,7 +540,7 @@ var searchData = function(files) {
 					return true;
 				} else {
 					files = null;
-					processFailure("Not enough logs to generate useful information!");   
+					processFailure("Not enough logs to generate useful information!");
 					return;
 				}
 			}
@@ -531,7 +575,7 @@ var processStartPoint = function(files) {
 				entry = files[i];
 			}
 			if (processFile(results[i])) {
-				numOfFiles++;  
+				numOfFiles++;
 			}
 		}
 	} else {

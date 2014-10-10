@@ -1,3 +1,5 @@
+//jscs:disable
+
 //var gameDatabase = {} // Will store game data
 //var summonerDatabase = {} // Will be used to see who you most play with
 //var frequencyDatabase = []
@@ -8,13 +10,13 @@ var getHumanTime = function(seconds) {
     var numhours = Math.floor((seconds % 86400) / 3600);
     var numminutes = Math.floor(((seconds % 86400) % 3600) / 60);
     var construct = "";
-    
+
     if (numdays == 1) {
         construct = "1 day";
     } else if (numdays > 1) {
         construct = numdays + " days";
     }
-    
+
     if (numhours == 1) {
         if (construct != "") {
             construct = construct + ", ";
@@ -26,7 +28,7 @@ var getHumanTime = function(seconds) {
         }
         construct = construct + numhours + " hours";
     }
-    
+
     if (construct != "") {
         construct = construct + ", and ";
     }
@@ -87,7 +89,7 @@ var drawGeneralStats = function() {
     dataToDrawRight.push(["Blue win rate: ", getPercentage(rates[5],rates[6]).toString() + "%"]);
     dataToDrawRight.push(["Purple win rate: ", getPercentage(rates[7], rates[8]).toString() + "%"]);
     dataToDrawRight.push(["Unique players encountered: ", Object.keys(summonerDatabase).length.toString()])
-    
+
     for (key in dataToDrawLeft) {
         $("#general-stats-left").append(
             '<span class="stat-style">'+dataToDrawLeft[key][0]+
@@ -107,9 +109,9 @@ var drawName = function() {
 var expandChampion = function(champion) {
     var detailsContainer = $("#most-played-data .info-card[cardid='" + attributeString(champion) + "'] .details-container")
     var dataToDraw = [];
-    
+
     detailsContainer.html("");
-    
+
     var timePlayed = timeSpentPlaying(summonerName, champion);
     var rates = getRates(summonerName, champion);
     var totalRates = getRates(summonerName);
@@ -124,21 +126,21 @@ var expandChampion = function(champion) {
     dataToDraw.push(["Games played on purple side: ", (rates[4]).toString()]);
     dataToDraw.push(["Blue win rate: ", getPercentage(rates[5],rates[6]).toString() + "%"]);
     dataToDraw.push(["Purple win rate: ", getPercentage(rates[7], rates[8]).toString() + "%"]);
-    
+
     for (key in dataToDraw) {
         detailsContainer.append('<span class="stat-text">' + dataToDraw[key][0] + '</span><span class="actual-stat">' + dataToDraw[key][1] + '</span><br>');
     }
-    
+
     detailsContainer.slideDown();
-    
+
     $("#most-played-data .info-card[cardid='" + attributeString(champion) + "'] .expand-area .glyphicon").removeClass("glyphicon-chevron-down");
     $("#most-played-data .info-card[cardid='" + attributeString(champion) + "'] .expand-area .glyphicon").addClass("glyphicon-chevron-up");
-    
+
 }
 
 var collapseChampion = function(champion) {
     $("#most-played-data .info-card[cardid='" + attributeString(champion) + "'] .details-container").slideUp();
-    
+
     $("#most-played-data .info-card[cardid='" + attributeString(champion) + "'] .expand-area .glyphicon").removeClass("glyphicon-chevron-up");
     $("#most-played-data .info-card[cardid='" + attributeString(champion) + "'] .expand-area .glyphicon").addClass("glyphicon-chevron-down");
 }
@@ -156,45 +158,45 @@ var drawChampionsList = function(searchTerm, expanded) {
     } else {
         resultDatabase = championsPlayedWith(summonerName);
     }
-    
+
     for (key in resultDatabase) {
-        if (key >= 20) break;
+        if (key >= 50) break;
         var rates = getRates(summonerName, resultDatabase[key][0]);
         var winrate = getPercentage(rates[1],rates[2])
         var card = '<div class="info-card" cardid=\'' + attributeString(resultDatabase[key][0]) + '\'><div class="main-area"><img src="http://ddragon.leagueoflegends.com/cdn/4.16.1/img/champion/' + resultDatabase[key][0] + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">' + getProperName(resultDatabase[key][0]) + '</span><br><span class="games-played">' + resultDatabase[key][1] + ' games played</span></div><div class="win-rate"><span class="win-percent">' + winrate + '%</span><br><span class="win-rate-text">Winrate</span></div></div><div class="details-area"><div class="details-container" style="display:none;"></div></div><div class="expand-area"><span class="glyphicon glyphicon-chevron-down"></span></div></div>'
         $("#most-played-data").append(card);
-        
+
         var clickFunction = new Function('if ($("#most-played-data .info-card[cardid=\'' + resultDatabase[key][0] + '\'] .expand-area .glyphicon.glyphicon-chevron-down").length) {expandChampion("' + resultDatabase[key][0] + '");} else {collapseChampion("' + resultDatabase[key][0] + '");}');
-        
+
         $("#most-played-data .info-card[cardid='" + attributeString(resultDatabase[key][0]) + "'] .expand-area").click(clickFunction);
     }
-    
+
     for (key in expanded) {
         expandChampion(expanded[key]);
     }
 }
 
 var getTopChampions = function(player) {
-    
+
     var championsPlayed = [];
     for (var champion in summonerDatabase[player]) {
         var rates = getRates(player, champion);
         championsPlayed.push([champion, rates[0]]);
     }
-    
+
     championsPlayed.sort(function(a, b) {
         a = a[1];
         b = b[1];
-        
+
         return a < b ? 1 : (a > b ? -1:0);
     });
-    
+
     var cleanedFrequency = [];
     for (var key in championsPlayed) {
         if (key >= 5) break;
         cleanedFrequency.push(championsPlayed[key][0]);
     }
-    
+
     return cleanedFrequency;
 }
 
@@ -205,13 +207,13 @@ var attributeString = function(text) {
 var expandPlayer = function(player) {
     var detailsContainer = $("#played-with-data .info-card[cardid='" + attributeString(player) + "'] .details-container")
     var dataToDraw = [];
-    
+
     detailsContainer.html("");
-    
+
     var region = getRegion(player);
-    
+
     detailsContainer.append('<a class="stat-text" href="http://www.lolking.net/search?name=' + player + '&region=' + region.toUpperCase() + '" target="_blank">LolKing</a><span> - </span><a class="stat-text" href="http://' + region + '.op.gg/summoner/userName=' + player + '" target="_blank">OP.GG</a><br>');
-    
+
     var timePlayed = timeSpentPlaying(player);
     var rates = getRates(player);
     var totalRates = getRates(summonerName);
@@ -222,14 +224,14 @@ var expandPlayer = function(player) {
                      getPercentage(rates[0], totalRates[0]-rates[0]) + "%"]);
     dataToDraw.push(["Games known won together: ", rates[1].toString()]);
     dataToDraw.push(["Games known lost together: ", rates[2].toString()]);
-    
+
     for (key in dataToDraw) {
         detailsContainer.append('<span class="stat-text">' + dataToDraw[key][0] + '</span><span class="actual-stat">' + dataToDraw[key][1] + '</span><br>');
     }
-    
+
     var topChampions = getTopChampions(player);
     detailsContainer.append('<span class="stat-text">Top played champions:</span><div class="summoner-top-champions"></div>')
-    
+
     for (key in topChampions) {
         var rates = getRates(player, topChampions[key]);
         var winrate = getPercentage(rates[1], rates[2]);
@@ -240,17 +242,17 @@ var expandPlayer = function(player) {
         }
         $("#played-with-data .info-card[cardid='" + attributeString(player) + "'] .summoner-top-champions").append('<img src="http://ddragon.leagueoflegends.com/cdn/4.16.1/img/champion/' + topChampions[key] + '.png" alt="' + topChampions[key] + '"><span class="champion-name">' + getProperName(topChampions[key]) + '</span><span class="champion-winrate">' + winrate.toString() + enemy+ '</span><br>')
     }
-    
+
     detailsContainer.slideDown();
-    
+
     $("#played-with-data .info-card[cardid='" + attributeString(player) + "'] .expand-area .glyphicon").removeClass("glyphicon-chevron-down");
     $("#played-with-data .info-card[cardid='" + attributeString(player) + "'] .expand-area .glyphicon").addClass("glyphicon-chevron-up");
-    
+
 }
 
 var collapsePlayer = function(player) {
     $("#played-with-data .info-card[cardid='" + attributeString(player) + "'] .details-container").slideUp();
-    
+
     $("#played-with-data .info-card[cardid='" + attributeString(player) + "'] .expand-area .glyphicon").removeClass("glyphicon-chevron-up");
     $("#played-with-data .info-card[cardid='" + attributeString(player) + "'] .expand-area .glyphicon").addClass("glyphicon-chevron-down");
 }
@@ -268,10 +270,10 @@ var drawPlayersList = function(searchTerm, expanded) {
     } else {
         resultDatabase = summonerFrequencyDatabase;
     }
-    
+
     for (key in resultDatabase) {
-        if (key >= 20) break;
         var rates = getRates(resultDatabase[key][0]);
+        if (key >= 50 || rates[0] <= 0) break;
         var winrate = getPercentage(rates[1],rates[2]);
         var enemy = "Winrate"
         if (!(rates[0] > 0)) {
@@ -289,19 +291,73 @@ var drawPlayersList = function(searchTerm, expanded) {
             botChampion = botChampion.replace("'", "").replace(" ", "")
             card = '<div class="info-card" cardid=\'' + attributeString(resultDatabase[key][0]) + '\'><div class="main-area"><img src="http://ddragon.leagueoflegends.com/cdn/4.16.1/img/champion/' + botChampion + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">' + resultDatabase[key][0] + '</span><br><span class="games-played">' + resultDatabase[key][1] + ' games played together</span></div><div class="win-rate"><span class="win-percent">' + winrate + '</span><br><span class="win-rate-text">' + enemy + '</span></div></div><div class="details-area"><div class="details-container" style="display:none;"></div></div><div class="expand-area"><span class="glyphicon glyphicon-chevron-down"></span></div></div>'
         } else {
-            card = '<div class="info-card" cardid=\'' + attributeString(resultDatabase[key][0]) + '\'><div class="main-area"><img src="http://avatar.leagueoflegends.com/' + region + '/' + resultDatabase[key][0] + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">' + resultDatabase[key][0] + '</span><br><span class="games-played">' + resultDatabase[key][1] + ' games played together</span></div><div class="win-rate"><span class="win-percent">' + winrate + '</span><br><span class="win-rate-text">' + enemy + '</span></div></div><div class="details-area"><div class="details-container" style="display:none;"></div></div><div class="expand-area"><span class="glyphicon glyphicon-chevron-down"></span></div></div>'
+            card = '<div class="info-card" cardid=\'' + attributeString(resultDatabase[key][0]) + '\'><div class="main-area"><img src="http://avatar.leagueoflegends.com/' + region + '/' + resultDatabase[key][0] + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">'+
+            resultDatabase[key][0] + '</span><br><span class="games-played">' + resultDatabase[key][1] + ' games played together</span></div><div class="win-rate"><span class="win-percent">' + winrate + '</span><br><span class="win-rate-text">' + enemy + '</span></div></div><div class="details-area"><div class="details-container" style="display:none;"></div></div><div class="expand-area"><span class="glyphicon glyphicon-chevron-down"></span></div></div>'
         }
-        
+
         $("#played-with-data").append(card);
-        
+
         var clickFunction = new Function('if ($("#played-with-data .info-card[cardid=\'' + attributeString(resultDatabase[key][0]) + '\'] .expand-area .glyphicon.glyphicon-chevron-down").length) {expandPlayer("' + resultDatabase[key][0] + '");} else {collapsePlayer("' + resultDatabase[key][0] + '");}');
-        
+
         $("#played-with-data .info-card[cardid='" + attributeString(resultDatabase[key][0]) + "'] .expand-area").click(clickFunction);
     }
-    
+
     for (key in expanded) {
         expandPlayer(expanded[key]);
     }
+}
+
+
+function bindButtons() {
+    var clickBusy = false
+
+    $("#normals-button").on("click", function() {
+        if (!clickBusy) {
+            clickBusy = true;
+            showNormals = !showNormals;
+            $(this).removeClass("active")
+            if (showNormals) {
+                $(this).addClass("active")
+            }
+
+            displayAllStats();
+            setTimeout(function() {
+                clickBusy = false;
+            }, 200)
+        }
+    })
+
+    $("#bots-button").on("click", function() {
+        if (!clickBusy) {
+            clickBusy = true;
+            showBots = !showBots;
+            $(this).removeClass("active")
+            if (showBots) {
+                $(this).addClass("active")
+            }
+
+            displayAllStats();
+            setTimeout(function() {
+                clickBusy = false;
+            }, 200)
+        }
+    })
+
+    $("#customs-button").on("click", function() {
+        if (!clickBusy) {
+            clickBusy = true;
+            showCustoms = !showCustoms;
+            $(this).removeClass("active")
+            if (showCustoms) {
+                $(this).addClass("active")
+            }
+
+            displayAllStats();
+            setTimeout(function() {
+                clickBusy = false;
+            }, 200)
+        }
+    })
 }
 
 
@@ -310,12 +366,14 @@ var displayAllStats = function() {
     drawGeneralStats();
     drawChampionsList();
     drawPlayersList();
-    
+
     $("input[placeholder='Champion name...']").on("input", function() {
-       drawChampionsList($(this).val()); 
+       drawChampionsList($(this).val());
     });
-    
+
     $("input[placeholder='Summoner name...']").on("input", function() {
-       drawPlayersList($(this).val()); 
+       drawPlayersList($(this).val());
     });
 }
+
+bindButtons();
