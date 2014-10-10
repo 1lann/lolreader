@@ -89,7 +89,7 @@ var getRates = function(summoner, champion) {
 		for (var champion in summonerDatabase[summoner]) {
 			for (var key in summonerDatabase[summoner][champion]) {
 				var gameObject = gameDatabase[summonerDatabase[summoner][champion][key]];
-				if ((gameObject.custom && showCustoms) || !gameObject.custom) {
+				if ((gameObject.custom && showCustoms) || (!gameObject.custom && !showCustoms)) {
 					if ((gameObject.type == "classic" && showNormals) ||
 						(gameObject.type == "bot" && showBots)) {
 						if (gameObject["blue"][summonerName] && gameObject["blue"][summoner]) {
