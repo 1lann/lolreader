@@ -361,6 +361,23 @@ function bindButtons() {
             }, 200)
         }
     })
+
+    $("#others-button").on("click", function() {
+        if (!clickBusy) {
+            clickBusy = true;
+            showOther = !showOther;
+            $(this).removeClass("active")
+            if (showOther) {
+                $(this).addClass("active")
+            }
+
+            summonersPlayedWith();
+            displayAllStats();
+            setTimeout(function() {
+                clickBusy = false;
+            }, 200)
+        }
+    })
 }
 
 

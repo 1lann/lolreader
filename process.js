@@ -13,6 +13,7 @@ var summonerName;
 var showNormals = true;
 var showBots = true;
 var showCustoms = true;
+var showOther = true;
 
 var gameStats = {
 	"loading": 0
@@ -68,8 +69,9 @@ var ratesState = [true, true, true]
 var getRates = function(summoner, champion) {
 	if ((ratesState[0] != showNormals) ||
 		(ratesState[1] != showBots) ||
-		(ratesState[2] != showCustoms)) {
-			ratesState = [showNormals, showBots, showCustoms];
+		(ratesState[2] != showCustoms) ||
+		(ratesState[3] != showOther)) {
+			ratesState = [showNormals, showBots, showCustoms, showOther];
 			ratesCache = {}
 	}
 
@@ -92,7 +94,8 @@ var getRates = function(summoner, champion) {
 				if ((gameObject.custom && showCustoms) || (!gameObject.custom)) {
 					if ((gameObject.type == "classic" && showNormals) ||
 						(gameObject.type == "bot" && showBots) ||
-						(!showNormals && !showBots && showCustoms && gameObject.custom)) {
+						(gameObject.type != "classic" && gameObject.type != "bot" && showOther) ||
+						(!showNormals && !showBots && !showOther && showCustoms && gameObject.custom)) {
 						if (gameObject["blue"][summonerName] && gameObject["blue"][summoner]) {
 							blueGames++;
 							if (gameObject["result"] == "win") {
@@ -116,24 +119,23 @@ var getRates = function(summoner, champion) {
 	} else {
 		for (var key in summonerDatabase[summoner][champion]) {
 			var gameObject = gameDatabase[summonerDatabase[summoner][champion][key]];
-			if ((gameObject.custom && showCustoms) || (!gameObject.custom)) {
-				if ((gameObject.type == "classic" && showNormals) ||
-					(gameObject.type == "bot" && showBots) ||
-					(!showNormals && !showBots && showCustoms && gameObject.custom)) {
-					if (gameObject["blue"][summonerName] && gameObject["blue"][summoner]) {
-						blueGames++;
-						if (gameObject["result"] == "win") {
-							blueWins++;
-						} else if (gameObject["result"] == "lose") {
-							blueLoses++;
-						}
-					} else if (gameObject["purple"][summonerName] && gameObject["purple"][summoner]) {
-						purpleGames++;
-						if (gameObject["result"] == "win") {
-							purpleWins++;
-						} else if (gameObject["result"] == "lose") {
-							purpleLoses++;
-						}
+			if ((gameObject.type == "classic" && showNormals) ||
+				(gameObject.type == "bot" && showBots) ||
+				(gameObject.type != "classic" && gameObject.type != "bot" && showOther) ||
+				(!showNormals && !showBots && !showOther && showCustoms && gameObject.custom)) {
+				if (gameObject["blue"][summonerName] && gameObject["blue"][summoner]) {
+					blueGames++;
+					if (gameObject["result"] == "win") {
+						blueWins++;
+					} else if (gameObject["result"] == "lose") {
+						blueLoses++;
+					}
+				} else if (gameObject["purple"][summonerName] && gameObject["purple"][summoner]) {
+					purpleGames++;
+					if (gameObject["result"] == "win") {
+						purpleWins++;
+					} else if (gameObject["result"] == "lose") {
+						purpleLoses++;
 					}
 				}
 			}
@@ -143,19 +145,21 @@ var getRates = function(summoner, champion) {
 	return [blueGames+purpleGames, blueWins+purpleWins, blueLoses+purpleLoses, blueGames, purpleGames, blueWins, blueLoses, purpleWins, purpleLoses];
 }
 
+
+
+
 var timeSpentPlaying = function(summoner, champion) {
 	var totalTime = 0;
 
 	if (champion) {
 		for (var key in summonerDatabase[summoner][champion]) {
 			var gameObject = gameDatabase[summonerDatabase[summoner][champion][key]];
-			if ((gameObject.custom && showCustoms) || (!gameObject.custom)) {
-				if ((gameObject.type == "classic" && showNormals) ||
-					(gameObject.type == "bot" && showBots) ||
-					(!showNormals && !showBots && showCustoms && gameObject.custom)) {
-					if (gameObject["time"] && (gameObject["blue"][summonerName] || gameObject["purple"][summonerName])) {
-						totalTime = totalTime+gameDatabase[summonerDatabase[summoner][champion][key]]["time"];
-					}
+			if ((gameObject.type == "classic" && showNormals) ||
+				(gameObject.type == "bot" && showBots) ||
+				(gameObject.type != "classic" && gameObject.type != "bot" && showOther) ||
+				(!showNormals && !showBots && !showOther && showCustoms && gameObject.custom)) {
+				if (gameObject["time"] && (gameObject["blue"][summonerName] || gameObject["purple"][summonerName])) {
+					totalTime = totalTime+gameDatabase[summonerDatabase[summoner][champion][key]]["time"];
 				}
 			}
 		}
@@ -166,7 +170,8 @@ var timeSpentPlaying = function(summoner, champion) {
 				if ((gameObject.custom && showCustoms) || (!gameObject.custom)) {
 					if ((gameObject.type == "classic" && showNormals) ||
 						(gameObject.type == "bot" && showBots) ||
-						(!showNormals && !showBots && showCustoms && gameObject.custom)) {
+						(gameObject.type != "classic" && gameObject.type != "bot" && showOther) ||
+						(!showNormals && !showBots && !showOther && showCustoms && gameObject.custom)) {
 						if (gameObject["time"] && (gameObject["blue"][summonerName] || gameObject["purple"][summonerName])) {
 							totalTime = totalTime+gameDatabase[summonerDatabase[summoner][champ][key]]["time"];
 						}
@@ -227,7 +232,8 @@ var championsPlayedWith = function(summoner) {
 			if ((gameObject.custom && showCustoms) || (!gameObject.custom)) {
 				if ((gameObject.type == "classic" && showNormals) ||
 					(gameObject.type == "bot" && showBots) ||
-					(!showNormals && !showBots && showCustoms && gameObject.custom)) {
+					(gameObject.type != "classic" && gameObject.type != "bot" &&  showOther) ||
+					(!showNormals && !showBots && !showOther && showCustoms && gameObject.custom)) {
 					if (!championFrequency[champion]) championFrequency[champion] = 0;
 					championFrequency[champion]++;
 					total++;
