@@ -291,7 +291,7 @@ var drawPlayersList = function(searchTerm, expanded) {
             botChampion = botChampion.replace("'", "").replace(" ", "")
             card = '<div class="info-card" cardid=\'' + attributeString(resultDatabase[key][0]) + '\'><div class="main-area"><img src="http://ddragon.leagueoflegends.com/cdn/4.16.1/img/champion/' + botChampion + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">' + resultDatabase[key][0] + '</span><br><span class="games-played">' + resultDatabase[key][1] + ' games played together</span></div><div class="win-rate"><span class="win-percent">' + winrate + '</span><br><span class="win-rate-text">' + enemy + '</span></div></div><div class="details-area"><div class="details-container" style="display:none;"></div></div><div class="expand-area"><span class="glyphicon glyphicon-chevron-down"></span></div></div>'
         } else {
-            card = '<div class="info-card" cardid=\'' + attributeString(resultDatabase[key][0]) + '\'><div class="main-area"><img src="http://avatar.leagueoflegends.com/' + region + '/' + resultDatabase[key][0] + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">'+
+            card = '<div class="info-card" cardid=\'' + attributeString(resultDatabase[key][0]) + '\'><div class="main-area"><img src="http://avatar-service-prod-1651857689.us-west-2.elb.amazonaws.com/' + region + '/' + resultDatabase[key][0] + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">'+
             resultDatabase[key][0] + '</span><br><span class="games-played">' + resultDatabase[key][1] + ' games played together</span></div><div class="win-rate"><span class="win-percent">' + winrate + '</span><br><span class="win-rate-text">' + enemy + '</span></div></div><div class="details-area"><div class="details-container" style="display:none;"></div></div><div class="expand-area"><span class="glyphicon glyphicon-chevron-down"></span></div></div>'
         }
 
@@ -378,6 +378,17 @@ function bindButtons() {
             }, 200)
         }
     })
+
+    $("#not-you").click(function() {
+        var newName = window.prompt("What's your summoner name?","");
+        summonerName = newName;
+        ratesCache = {};
+        drawName();
+        summonersPlayedWith();
+        drawPlayersList();
+        drawChampionsList();
+        drawGeneralStats();
+    });
 }
 
 

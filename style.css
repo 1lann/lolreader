@@ -51,6 +51,16 @@ h4 {
     opacity: 0;
 }
 
+#summoner-name {
+    display: inline-block;
+    width: auto;
+    margin-right: 10px;
+}
+
+#not-you {
+    cursor: pointer;
+}
+
 #drop-objects {
     z-index: 15;
     text-align: center;

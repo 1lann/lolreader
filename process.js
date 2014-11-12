@@ -64,15 +64,16 @@ var getRegion = function(summoner) {
 	return mostRegion;
 }
 
-var ratesCache = {}
-var ratesState = [true, true, true]
+var ratesCache = {};
+
+var ratesState = [true, true, true, true]
 var getRates = function(summoner, champion) {
 	if ((ratesState[0] != showNormals) ||
 		(ratesState[1] != showBots) ||
 		(ratesState[2] != showCustoms) ||
 		(ratesState[3] != showOther)) {
 			ratesState = [showNormals, showBots, showCustoms, showOther];
-			ratesCache = {}
+			ratesCache = {};
 	}
 
 	if (champion && ratesCache[summoner+":"+champion]) {
