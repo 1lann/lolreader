@@ -91,6 +91,12 @@ h4 {
    z-index: 5 !important;
 }
 
+.alert-info {
+	font-size: 18px;
+	text-align: center;
+	margin-top: 50px;
+}
+
 .show {
 	opacity: 1 !important;
 }
