@@ -71,9 +71,15 @@ var drawGeneralStats = function() {
     $("#general-stats-right").html("");
     var dataToDrawLeft = [];
     var dataToDrawRight = [];
-    var rates = getRates(summonerName);
+
+    var timeSeconds = 0;
+    var rates = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+  	for (var i = 0; i < summonerNames.length; i++) {
+  		timeSeconds = timeSeconds + timeSpentPlaying(summonerNames[i]);
+  		rates = combineRates(rates, getRates(summonerNames[i]));
+  	}
+
     // return [wins, loses, blueWins, blueLoses, purpleWins, purpleLoses];
-    var timeSeconds = timeSpentPlaying(summonerName);
     var gameHours = getHumanTime(timeSeconds);
     var averageMinutes = getHumanTime(timeSeconds/(rates[0]));
     var loadingHours = getHumanTime(gameStats["loading"]);
@@ -103,7 +109,15 @@ var drawGeneralStats = function() {
 }
 
 var drawName = function() {
-    $("#title-div>#summoner-name").text(summonerName);
+    $("#title-div>#summoner-name").text(summonerNames.join("/"));
+}
+
+var combineRates = function(ratesA, ratesB) {
+	newRates = [];
+	for (var i = 0; i < ratesA.length; i++) {
+		newRates.push(ratesA[i] + ratesB[i]);
+	}
+	return newRates;
 }
 
 var expandChampion = function(champion) {
@@ -112,9 +126,19 @@ var expandChampion = function(champion) {
 
     detailsContainer.html("");
 
-    var timePlayed = timeSpentPlaying(summonerName, champion);
-    var rates = getRates(summonerName, champion);
-    var totalRates = getRates(summonerName);
+    var timePlayed = 0;
+    var rates = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+  	var totalRates = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+  	for (var i = 0; i < summonerNames.length; i++) {
+  		timePlayed = timePlayed + timeSpentPlaying(summonerNames[i], champion);
+  		rates = combineRates(rates, getRates(summonerNames[i], champion));
+  		totalRates = combineRates(totalRates, getRates(summonerNames[i]));
+  	}
+
+    // var timePlayed = timeSpentPlaying(summonerName, champion);
+    // var rates = getRates(summonerName, champion);
+    // var totalRates = getRates(summonerName);
     var averageMinutes = getHumanTime(timePlayed/(rates[0]));
     dataToDraw.push(["Time played: ", getHumanTime(timePlayed)]);
     dataToDraw.push(["Average game time: ", averageMinutes]);
@@ -149,21 +173,27 @@ var drawChampionsList = function(searchTerm, expanded) {
     $("#most-played-data").html("");
     var resultDatabase = [];
     if (searchTerm) {
-        var searchDatabase = championsPlayedWith(summonerName);
+        var searchDatabase = championsPlayedWith(summonerNames);
         for (key in searchDatabase) {
             if (searchDatabase[key][0].toLowerCase().indexOf(searchTerm.toLowerCase().replace(/\W/g,"")) >= 0) {
                 resultDatabase.push([searchDatabase[key][0], searchDatabase[key][1]]);
             }
         }
     } else {
-        resultDatabase = championsPlayedWith(summonerName);
+        resultDatabase = championsPlayedWith(summonerNames);
     }
 
     for (key in resultDatabase) {
         if (key >= 50) break;
-        var rates = getRates(summonerName, resultDatabase[key][0]);
+
+        var rates = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+       	for (var i = 0; i < summonerNames.length; i++) {
+       		rates = combineRates(rates, getRates(summonerNames[i], resultDatabase[key][0]));
+       	}
+
         var winrate = getPercentage(rates[1],rates[2])
-        var card = '<div class="info-card" cardid=\'' + attributeString(resultDatabase[key][0]) + '\'><div class="main-area"><img src="http://ddragon.leagueoflegends.com/cdn/4.16.1/img/champion/' + resultDatabase[key][0] + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">' + getProperName(resultDatabase[key][0]) + '</span><br><span class="games-played">' + resultDatabase[key][1] + ' games played</span></div><div class="win-rate"><span class="win-percent">' + winrate + '%</span><br><span class="win-rate-text">Winrate</span></div></div><div class="details-area"><div class="details-container" style="display:none;"></div></div><div class="expand-area"><span class="glyphicon glyphicon-chevron-down"></span></div></div>'
+        var card = '<div class="info-card" cardid=\'' + attributeString(resultDatabase[key][0]) + '\'><div class="main-area"><img src="http://ddragon.leagueoflegends.com/cdn/5.2.1/img/champion/' + resultDatabase[key][0] + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">' + getProperName(resultDatabase[key][0]) + '</span><br><span class="games-played">' + resultDatabase[key][1] + ' games played</span></div><div class="win-rate"><span class="win-percent">' + winrate + '%</span><br><span class="win-rate-text">Winrate</span></div></div><div class="details-area"><div class="details-container" style="display:none;"></div></div><div class="expand-area"><span class="glyphicon glyphicon-chevron-down"></span></div></div>'
         $("#most-played-data").append(card);
 
         var clickFunction = new Function('if ($("#most-played-data .info-card[cardid=\'' + resultDatabase[key][0] + '\'] .expand-area .glyphicon.glyphicon-chevron-down").length) {expandChampion("' + resultDatabase[key][0] + '");} else {collapseChampion("' + resultDatabase[key][0] + '");}');
@@ -214,9 +244,16 @@ var expandPlayer = function(player) {
 
     detailsContainer.append('<a class="stat-text" href="http://www.lolking.net/search?name=' + player + '&region=' + region.toUpperCase() + '" target="_blank">LolKing</a><span> - </span><a class="stat-text" href="http://' + region + '.op.gg/summoner/userName=' + player + '" target="_blank">OP.GG</a><br>');
 
-    var timePlayed = timeSpentPlaying(player);
-    var rates = getRates(player);
-    var totalRates = getRates(summonerName);
+    var timePlayed = 0;
+    var rates = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+  	var totalRates = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+  	for (var i = 0; i < summonerNames.length; i++) {
+  		timePlayed = timePlayed + timeSpentPlaying(summonerNames[i]);
+  		rates = combineRates(rates, getRates([player]));
+  		totalRates = combineRates(totalRates, getRates(summonerNames[i]));
+  	}
+
     var averageMinutes = getHumanTime(timePlayed/(rates[0]));
     dataToDraw.push(["Region: ", region.toUpperCase()]);
     dataToDraw.push(["Time played together: ", getHumanTime(timePlayed)]);
@@ -240,7 +277,7 @@ var expandPlayer = function(player) {
             winrate = "Enemy "
             enemy = "only"
         }
-        $("#played-with-data .info-card[cardid='" + attributeString(player) + "'] .summoner-top-champions").append('<img src="http://ddragon.leagueoflegends.com/cdn/4.16.1/img/champion/' + topChampions[key] + '.png" alt="' + topChampions[key] + '"><span class="champion-name">' + getProperName(topChampions[key]) + '</span><span class="champion-winrate">' + winrate.toString() + enemy+ '</span><br>')
+        $("#played-with-data .info-card[cardid='" + attributeString(player) + "'] .summoner-top-champions").append('<img src="http://ddragon.leagueoflegends.com/cdn/5.2.1/img/champion/' + topChampions[key] + '.png" alt="' + topChampions[key] + '"><span class="champion-name">' + getProperName(topChampions[key]) + '</span><span class="champion-winrate">' + winrate.toString() + enemy+ '</span><br>')
     }
 
     detailsContainer.slideDown();
@@ -272,6 +309,10 @@ var drawPlayersList = function(searchTerm, expanded) {
     }
 
     for (key in resultDatabase) {
+    	if (isSummonerName(resultDatabase[key][0])) {
+    		continue;
+    	}
+
         var rates = getRates(resultDatabase[key][0]);
         if (key >= 50 || rates[0] <= 0) break;
         var winrate = getPercentage(rates[1],rates[2]);
@@ -289,7 +330,7 @@ var drawPlayersList = function(searchTerm, expanded) {
             var botChampion = botRegex.exec(resultDatabase[key][0])[1];
             if (botChampion == "Wukong") botChampion = "MonkeyKing"
             botChampion = botChampion.replace("'", "").replace(" ", "")
-            card = '<div class="info-card" cardid=\'' + attributeString(resultDatabase[key][0]) + '\'><div class="main-area"><img src="http://ddragon.leagueoflegends.com/cdn/4.16.1/img/champion/' + botChampion + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">' + resultDatabase[key][0] + '</span><br><span class="games-played">' + resultDatabase[key][1] + ' games played together</span></div><div class="win-rate"><span class="win-percent">' + winrate + '</span><br><span class="win-rate-text">' + enemy + '</span></div></div><div class="details-area"><div class="details-container" style="display:none;"></div></div><div class="expand-area"><span class="glyphicon glyphicon-chevron-down"></span></div></div>'
+            card = '<div class="info-card" cardid=\'' + attributeString(resultDatabase[key][0]) + '\'><div class="main-area"><img src="http://ddragon.leagueoflegends.com/cdn/5.2.1/img/champion/' + botChampion + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">' + resultDatabase[key][0] + '</span><br><span class="games-played">' + resultDatabase[key][1] + ' games played together</span></div><div class="win-rate"><span class="win-percent">' + winrate + '</span><br><span class="win-rate-text">' + enemy + '</span></div></div><div class="details-area"><div class="details-container" style="display:none;"></div></div><div class="expand-area"><span class="glyphicon glyphicon-chevron-down"></span></div></div>'
         } else {
             card = '<div class="info-card" cardid=\'' + attributeString(resultDatabase[key][0]) + '\'><div class="main-area"><img src="http://avatar-service-prod-1651857689.us-west-2.elb.amazonaws.com/' + region + '/' + resultDatabase[key][0] + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">'+
             resultDatabase[key][0] + '</span><br><span class="games-played">' + resultDatabase[key][1] + ' games played together</span></div><div class="win-rate"><span class="win-percent">' + winrate + '</span><br><span class="win-rate-text">' + enemy + '</span></div></div><div class="details-area"><div class="details-container" style="display:none;"></div></div><div class="expand-area"><span class="glyphicon glyphicon-chevron-down"></span></div></div>'
@@ -381,7 +422,18 @@ function bindButtons() {
 
     $("#not-you").click(function() {
         var newName = window.prompt("What's your summoner name?","");
-        summonerName = newName;
+        summonerNames = [newName];
+        ratesCache = {};
+        drawName();
+        summonersPlayedWith();
+        drawPlayersList();
+        drawChampionsList();
+        drawGeneralStats();
+    });
+
+    $("#another-id").click(function() {
+        var newName = window.prompt("Add an alias summoner name","");
+        summonerNames.push(newName);
         ratesCache = {};
         drawName();
         summonersPlayedWith();

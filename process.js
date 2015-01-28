@@ -8,7 +8,7 @@ var summonerDatabase = {}; // Will be used to see who you most play with
 var summonerMetaDatabase = {};
 var summonerFrequencyDatabase = {};
 var processedFiles = {}; // To prevent file processing duplication
-var summonerName;
+var summonerNames;
 
 var showNormals = true;
 var showBots = true;
@@ -51,8 +51,8 @@ var getRegion = function(summoner) {
 		}
 	}
 
-	if (mostRegion == "unknown" && summoner != summonerName) {
-		mostRegion = getRegion(summonerName);
+	if (mostRegion == "unknown" && !isSummonerName(summoner)) {
+		mostRegion = getRegion(summonerNames[0]);
 	}
 
 	if (!summonerMetaDatabase[summoner]) {
@@ -65,6 +65,26 @@ var getRegion = function(summoner) {
 }
 
 var ratesCache = {};
+
+var isSummonerName = function(name) {
+	for (var i = 0; i < summonerNames.length; i++) {
+		if (summonerNames[i] == name) {
+			return true;
+		}
+	}
+	return false;
+}
+
+var existsAsKey = function(array, names) {
+	for (var key in array) {
+		for (var i = 0; i < names.length; i++) {
+			if (key == names[i]) {
+				return array[key];
+			}
+		}
+	}
+	return false;
+}
 
 var ratesState = [true, true, true, true]
 var getRates = function(summoner, champion) {
@@ -97,14 +117,14 @@ var getRates = function(summoner, champion) {
 						(gameObject.type == "bot" && showBots) ||
 						(gameObject.type != "classic" && gameObject.type != "bot" && showOther) ||
 						(!showNormals && !showBots && !showOther && showCustoms && gameObject.custom)) {
-						if (gameObject["blue"][summonerName] && gameObject["blue"][summoner]) {
+						if (existsAsKey(gameObject["blue"], summonerNames) && existsAsKey(gameObject["blue"], [summoner])) {
 							blueGames++;
 							if (gameObject["result"] == "win") {
 								blueWins++;
 							} else if (gameObject["result"] == "lose") {
 								blueLoses++;
 							}
-						} else if (gameObject["purple"][summonerName] && gameObject["purple"][summoner]) {
+						} else if (existsAsKey(gameObject["purple"], summonerNames) && existsAsKey(gameObject["purple"], [summoner])) {
 							purpleGames++;
 							if (gameObject["result"] == "win") {
 								purpleWins++;
@@ -124,14 +144,14 @@ var getRates = function(summoner, champion) {
 				(gameObject.type == "bot" && showBots) ||
 				(gameObject.type != "classic" && gameObject.type != "bot" && showOther) ||
 				(!showNormals && !showBots && !showOther && showCustoms && gameObject.custom)) {
-				if (gameObject["blue"][summonerName] && gameObject["blue"][summoner]) {
+				if (existsAsKey(gameObject["blue"], summonerNames) && existsAsKey(gameObject["blue"], [summoner])) {
 					blueGames++;
 					if (gameObject["result"] == "win") {
 						blueWins++;
 					} else if (gameObject["result"] == "lose") {
 						blueLoses++;
 					}
-				} else if (gameObject["purple"][summonerName] && gameObject["purple"][summoner]) {
+				} else if (existsAsKey(gameObject["purple"], summonerNames) && existsAsKey(gameObject["purple"], [summoner])) {
 					purpleGames++;
 					if (gameObject["result"] == "win") {
 						purpleWins++;
@@ -159,7 +179,7 @@ var timeSpentPlaying = function(summoner, champion) {
 				(gameObject.type == "bot" && showBots) ||
 				(gameObject.type != "classic" && gameObject.type != "bot" && showOther) ||
 				(!showNormals && !showBots && !showOther && showCustoms && gameObject.custom)) {
-				if (gameObject["time"] && (gameObject["blue"][summonerName] || gameObject["purple"][summonerName])) {
+				if (gameObject["time"] && (existsAsKey(gameObject["blue"], summonerNames) || existsAsKey(gameObject["purple"], summonerNames))) {
 					totalTime = totalTime+gameDatabase[summonerDatabase[summoner][champion][key]]["time"];
 				}
 			}
@@ -173,7 +193,7 @@ var timeSpentPlaying = function(summoner, champion) {
 						(gameObject.type == "bot" && showBots) ||
 						(gameObject.type != "classic" && gameObject.type != "bot" && showOther) ||
 						(!showNormals && !showBots && !showOther && showCustoms && gameObject.custom)) {
-						if (gameObject["time"] && (gameObject["blue"][summonerName] || gameObject["purple"][summonerName])) {
+						if (gameObject["time"] && (existsAsKey(gameObject["blue"], summonerNames) || existsAsKey(gameObject["purple"], summonerNames))) {
 							totalTime = totalTime+gameDatabase[summonerDatabase[summoner][champ][key]]["time"];
 						}
 					}
@@ -202,7 +222,7 @@ var getSummonerName = function() {
 
 		return a < b ? 1 : (a > b ? -1:0);
 	});
-	summonerName = frequencyInOrder.shift()[0];
+	summonerNames = [frequencyInOrder.shift()[0]];
 	summonersPlayedWith();
 }
 
@@ -224,20 +244,27 @@ var summonersPlayedWith = function(summoner) {
 	summonerFrequencyDatabase = frequencyInOrder;
 }
 
-var championsPlayedWith = function(summoner) {
+var championsPlayedWith = function(summoners) {
+	if (typeof(summoners) == "string") {
+		summoners = [summoners];
+	}
+
 	var championFrequency = {};
 	var total = 0;
-	for (var champion in summonerDatabase[summoner]) {
-		for (var index in summonerDatabase[summoner][champion]) {
-			var gameObject = gameDatabase[summonerDatabase[summoner][champion][index]];
-			if ((gameObject.custom && showCustoms) || (!gameObject.custom)) {
-				if ((gameObject.type == "classic" && showNormals) ||
-					(gameObject.type == "bot" && showBots) ||
-					(gameObject.type != "classic" && gameObject.type != "bot" &&  showOther) ||
-					(!showNormals && !showBots && !showOther && showCustoms && gameObject.custom)) {
-					if (!championFrequency[champion]) championFrequency[champion] = 0;
-					championFrequency[champion]++;
-					total++;
+	for (var sI = 0; sI < summoners.length; sI++) {
+		var summoner = summoners[sI];
+		for (var champion in summonerDatabase[summoner]) {
+			for (var index in summonerDatabase[summoner][champion]) {
+				var gameObject = gameDatabase[summonerDatabase[summoner][champion][index]];
+				if ((gameObject.custom && showCustoms) || (!gameObject.custom)) {
+					if ((gameObject.type == "classic" && showNormals) ||
+						(gameObject.type == "bot" && showBots) ||
+						(gameObject.type != "classic" && gameObject.type != "bot" &&  showOther) ||
+						(!showNormals && !showBots && !showOther && showCustoms && gameObject.custom)) {
+						if (!championFrequency[champion]) championFrequency[champion] = 0;
+						championFrequency[champion]++;
+						total++;
+					}
 				}
 			}
 		}
@@ -599,7 +626,7 @@ var resetDatabase = function() {
 	gameDatabase = {};
 	summonerDatabase = {};
 	summonerFrequencyDatabase = {};
-	summonerName = null;
+	summonerNames = [];
 	gameStats = {
 		"time": 0,
 		"loading": 0
