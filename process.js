@@ -437,7 +437,7 @@ var processFile = function(fileEntry) {
 		fileEntry.getMetadata(
 			(function(fileEntry) {
 				return function(metadata) {
-					if (metadata.size < 500000) {
+					if (metadata.size < 11000000) {
 						fileEntry.file(function(file) {
 							processFileObject(file, fileEntry.name);
 						}, function(e){console.log(e)});
