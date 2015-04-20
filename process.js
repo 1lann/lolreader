@@ -140,26 +140,31 @@ var getRates = function(summoner, champion) {
 	} else {
 		for (var key in summonerDatabase[summoner][champion]) {
 			var gameObject = gameDatabase[summonerDatabase[summoner][champion][key]];
-			if ((gameObject.type == "classic" && showNormals) ||
-				(gameObject.type == "bot" && showBots) ||
-				(gameObject.type != "classic" && gameObject.type != "bot" && showOther) ||
-				(!showNormals && !showBots && !showOther && showCustoms && gameObject.custom)) {
-				if (existsAsKey(gameObject["blue"], summonerNames) && existsAsKey(gameObject["blue"], [summoner])) {
-					blueGames++;
-					if (gameObject["result"] == "win") {
-						blueWins++;
-					} else if (gameObject["result"] == "lose") {
-						blueLoses++;
-					}
-				} else if (existsAsKey(gameObject["purple"], summonerNames) && existsAsKey(gameObject["purple"], [summoner])) {
-					purpleGames++;
-					if (gameObject["result"] == "win") {
-						purpleWins++;
-					} else if (gameObject["result"] == "lose") {
-						purpleLoses++;
+			if ((gameObject.custom && showCustoms) || (!gameObject.custom)) {
+				if ((gameObject.type == "classic" && showNormals) ||
+					(gameObject.type == "bot" && showBots) ||
+					(gameObject.type != "classic" && gameObject.type != "bot" && showOther) ||
+					(!showNormals && !showBots && !showOther && showCustoms && gameObject.custom)) {
+					if (existsAsKey(gameObject["blue"], summonerNames) && existsAsKey(gameObject["blue"], [summoner])) {
+						blueGames++;
+						if (gameObject["result"] == "win") {
+							blueWins++;
+						} else if (gameObject["result"] == "lose") {
+							blueLoses++;
+						}
+					} else if (existsAsKey(gameObject["purple"], summonerNames) && existsAsKey(gameObject["purple"], [summoner])) {
+						purpleGames++;
+						if (gameObject["result"] == "win") {
+							purpleWins++;
+						} else if (gameObject["result"] == "lose") {
+							purpleLoses++;
+						}
 					}
 				}
 			}
+		}
+		if (champion == "Shyvana") {
+			console.log(blueGames+purpleGames)
 		}
 		ratesCache[summoner+":"+champion] = [blueGames+purpleGames, blueWins+purpleWins, blueLoses+purpleLoses, blueGames, purpleGames, blueWins, blueLoses, purpleWins, purpleLoses];
 	}
@@ -429,9 +434,21 @@ var processFile = function(fileEntry) {
 	} else if (fileNameRegex.exec(fileEntry.name)) {
 		processedFiles[fileEntry.name] = true;
 
-		fileEntry.file(function(file) {
-			processFileObject(file, fileEntry.name);
-		}, function(e){console.log(e)});
+		fileEntry.getMetadata(
+			(function(fileEntry) {
+				return function(metadata) {
+					if (metadata.size < 500000) {
+						fileEntry.file(function(file) {
+							processFileObject(file, fileEntry.name);
+						}, function(e){console.log(e)});
+					} else {
+						numOfFiles--
+					}
+				}
+			})(fileEntry)
+		)
+
+
 		return true;
 	} else {
 		return false;

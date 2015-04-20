@@ -242,7 +242,7 @@ var expandPlayer = function(player) {
 
     var region = getRegion(player);
 
-    detailsContainer.append('<a class="stat-text" href="http://www.lolking.net/search?name=' + player + '&region=' + region.toUpperCase() + '" target="_blank">LolKing</a><span> - </span><a class="stat-text" href="http://' + region + '.op.gg/summoner/userName=' + player + '" target="_blank">OP.GG</a><br>');
+    // detailsContainer.append('<a class="stat-text" href="http://www.lolking.net/search?name=' + player + '&region=' + region.toUpperCase() + '" target="_blank">LolKing</a><span> - </span><a class="stat-text" href="http://' + region + '.op.gg/summoner/userName=' + player + '" target="_blank">OP.GG</a><br>');
 
     var timePlayed = 0;
     var rates = [0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -255,7 +255,7 @@ var expandPlayer = function(player) {
   	}
 
     var averageMinutes = getHumanTime(timePlayed/(rates[0]));
-    dataToDraw.push(["Region: ", region.toUpperCase()]);
+    // dataToDraw.push(["Region: ", region.toUpperCase()]);
     dataToDraw.push(["Time played together: ", getHumanTime(timePlayed)]);
     dataToDraw.push(["Percentage of games played together: ",
                      getPercentage(rates[0], totalRates[0]-rates[0]) + "%"]);
@@ -332,7 +332,7 @@ var drawPlayersList = function(searchTerm, expanded) {
             botChampion = botChampion.replace("'", "").replace(" ", "")
             card = '<div class="info-card" cardid=\'' + attributeString(resultDatabase[key][0]) + '\'><div class="main-area"><img src="http://ddragon.leagueoflegends.com/cdn/5.6.1/img/champion/' + botChampion + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">' + resultDatabase[key][0] + '</span><br><span class="games-played">' + resultDatabase[key][1] + ' games played together</span></div><div class="win-rate"><span class="win-percent">' + winrate + '</span><br><span class="win-rate-text">' + enemy + '</span></div></div><div class="details-area"><div class="details-container" style="display:none;"></div></div><div class="expand-area"><span class="glyphicon glyphicon-chevron-down"></span></div></div>'
         } else {
-            card = '<div class="info-card" cardid=\'' + attributeString(resultDatabase[key][0]) + '\'><div class="main-area"><img src="http://avatar-service-prod-1651857689.us-west-2.elb.amazonaws.com/' + region + '/' + resultDatabase[key][0] + '.png" alt="'+ resultDatabase[key][0] + '"><div class="left-section"><span class="name">'+
+            card = '<div class="info-card" cardid=\'' + attributeString(resultDatabase[key][0]) + '\'><div class="main-area"><div class="left-section" style="margin-top:35px;margin-left:30px;"><span class="name">'+
             resultDatabase[key][0] + '</span><br><span class="games-played">' + resultDatabase[key][1] + ' games played together</span></div><div class="win-rate"><span class="win-percent">' + winrate + '</span><br><span class="win-rate-text">' + enemy + '</span></div></div><div class="details-area"><div class="details-container" style="display:none;"></div></div><div class="expand-area"><span class="glyphicon glyphicon-chevron-down"></span></div></div>'
         }
 

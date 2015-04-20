@@ -6,6 +6,12 @@
 
 }
 
+.footer {
+	position: absolute;
+	bottom: 0;
+	margin-bottom: 30px;
+}
+
 h1 {
 	font-size: 70px;
 }
