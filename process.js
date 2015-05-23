@@ -163,9 +163,6 @@ var getRates = function(summoner, champion) {
 				}
 			}
 		}
-		if (champion == "Shyvana") {
-			console.log(blueGames+purpleGames)
-		}
 		ratesCache[summoner+":"+champion] = [blueGames+purpleGames, blueWins+purpleWins, blueLoses+purpleLoses, blueGames, purpleGames, blueWins, blueLoses, purpleWins, purpleLoses];
 	}
 	return [blueGames+purpleGames, blueWins+purpleWins, blueLoses+purpleLoses, blueGames, purpleGames, blueWins, blueLoses, purpleWins, purpleLoses];
