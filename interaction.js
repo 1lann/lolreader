@@ -3,7 +3,7 @@ var cancelAnimateOut = false;
 var processLock = false;
 var correctDirectory = false;
 var progressInterval;
-	
+
 $(document).bind('dragover', function (e) {
     if (!processLock) {
         cancelAnimateOut = false;
@@ -49,16 +49,16 @@ document.ondrop = function(e) {
 
 	dropZone.addClass("show");
     cancelAnimateOut = true;
-    
+
     changeTextTimeout = function() {
         if (processLock) {
             $("#drop-it").text("Processing...");
             $("#drop-it, #drop-sub").addClass("show");
         }
     }
-    
+
     $("#drop-it").removeClass("show");
-    
+
     setTimeout(changeTextTimeout, 250);
     correctDirectory = false;
     try {

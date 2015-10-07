@@ -358,7 +358,8 @@ var processFileObject = function(file, fileName) {
 
 		var numberOfBots = 0
 		var numberOfPlayers = 0
-		if (logData.indexOf("Creating Hero...") > 0) {
+
+		if (logData.indexOf("Creating Hero") > 0) {
 			gameDataConstruct["blue"] = {};
 			gameDataConstruct["purple"] = {};
 			while (player = playersRegex.exec(logData)) {
