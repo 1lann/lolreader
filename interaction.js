@@ -36,8 +36,9 @@ $(document).bind('dragover', function (e) {
 var processFailure = function(message) {
     dropZone.removeClass("show");
     $("#drop-it, #drop-sub").removeClass("show");
+    $("#step-number").show();
     $("#step-number").text(message);
-    $("#step-number").css("font-size", "60px");
+    $("#step-number").css("font-size", "40px");
     $("#step-number").css("color", "#bc3a3a");
     processLock = false;
 }
@@ -89,7 +90,7 @@ document.ondrop = function(e) {
                         processFailure("Could not find logs - Try again");
                     }
                 } else {
-                    processFailure("You need to drop the log files, not the folder!")
+                    processFailure("You need to drop the Game - R3d Logs files instead!")
                     $("#instructions").text("This is because you're using a browser that doesn't support folder uploads. You can try using Google Chrome instead, which supports folder uploads.");
                 }
             } else {
